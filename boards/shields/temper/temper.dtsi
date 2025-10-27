@@ -1,6 +1,5 @@
 /*
- * Custom Split Keyboard (based on Temper)
- * Board: nRF52840 SuperMini (AliExpress, compatible with Nice!Nano v2)
+ * Copyright (c) 2020 Pete Johanson
  *
  * SPDX-License-Identifier: MIT
  */
@@ -14,74 +13,81 @@
         zmk,matrix_transform = &default_transform;
     };
 
-    // ─────────────────────────────
-    // Matrix Transform
-    // ─────────────────────────────
     default_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
+        columns = <10>;
         rows = <4>;
-        columns = <5>;
-
-        // Map layout: row0-3, col0-4
-        // Passe die Reihenfolge hier an dein Layout an (z. B. für Split-Left oder Split-Right)
+// | SW1  | SW2  | SW3  | SW4  | SW5  |   | SW5  | SW4  | SW3  | SW2  | SW1  |
+// | SW6  | SW7  | SW8  | SW9  | SW10 |   | SW10 | SW9  | SW8  | SW7  | SW6  |
+// | SW11 | SW12 | SW13 | SW14 | SW15 |   | SW15 | SW14 | SW13 | SW12 | SW11 |
+//               | SW16 | SW17 | SW18 |   | SW18 | SW17 | SW16 |
         map = <
-            RC(0,0) RC(0,1) RC(0,2) RC(0,3) RC(0,4)
-            RC(1,0) RC(1,1) RC(1,2) RC(1,3) RC(1,4)
-            RC(2,0) RC(2,1) RC(2,2) RC(2,3) RC(2,4)
-                        RC(3,2) RC(3,3) RC(3,4)
+RC(0,0) RC(0,1) RC(0,2) RC(0,3) RC(0,4)  RC(0,5) RC(0,6) RC(0,7) RC(0,8) RC(0,9)
+RC(1,0) RC(1,1) RC(1,2) RC(1,3) RC(1,4)  RC(1,5) RC(1,6) RC(1,7) RC(1,8) RC(1,9)
+RC(2,0) RC(2,1) RC(2,2) RC(2,3) RC(2,4)  RC(2,5) RC(2,6) RC(2,7) RC(2,8) RC(2,9)
+                RC(3,2) RC(3,3) RC(3,4)  RC(3,5) RC(3,6) RC(3,7)
         >;
     };
 
-    // ─────────────────────────────
-    // Key Scan Matrix (GPIOs)
-    // ─────────────────────────────
-    kscan0: kscan {
-        compatible = "zmk,kscan-gpio-matrix";
-        label = "KSCAN";
+// Previous Temper config
+//    kscan0: kscan {
+//        compatible = "zmk,kscan-gpio-matrix";
+//        label = "KSCAN";
+//
+//        diode-direction = "col2row";
+//        row-gpios
+//            = <&pro_micro 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+//            , <&pro_micro 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+//            , <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+//            , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+//            ;
+//
+//    };
+//
+//    // TODO: per-key RGB node(s)?
+//};
 
-        // Dein Board ist col2row verdrahtet
-        diode-direction = "col2row";
 
-        // Reihen-Pins (row0 → row3)
-        // P0.22 = row0, P0.24 = row1, P1.00 = row2, P0.11 = row3
-        row-gpios = <
-            &pro_micro 0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)
-            &pro_micro 0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)
-            &pro_micro 1 00 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)
-            &pro_micro 0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)
-        >;
+//New
+kscan0: kscan {
+    compatible = "zmk,kscan-gpio-matrix";
+    label = "KSCAN";
+    diode-direction = "col2row";
 
-        // Spalten-Pins (col0 → col4)
-        // P0.29 = col0, P0.02 = col1, P1.15 = col2, P1.13 = col3, P1.11 = col4
-        col-gpios = <
-            &pro_micro 0 29 GPIO_ACTIVE_HIGH
-            &pro_micro 0 02 GPIO_ACTIVE_HIGH
-            &pro_micro 1 15 GPIO_ACTIVE_HIGH
-            &pro_micro 1 13 GPIO_ACTIVE_HIGH
-            &pro_micro 1 11 GPIO_ACTIVE_HIGH
-        >;
-    };
+    row-gpios = <
+        &your_mcu 0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)  /* row0 = P0.22 */
+        &your_mcu 0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)  /* row1 = P0.24 */
+        &your_mcu 1 00 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)  /* row2 = P1.00 */
+        &your_mcu 0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)  /* row3 = P0.11 */
+    >;
+};
 
-    // ─────────────────────────────
-    // OLED Display (falls vorhanden)
-    // ─────────────────────────────
-    &pro_micro_i2c {
-        status = "okay";
 
-        oled: ssd1306@3c {
-            compatible = "solomon,ssd1306fb";
-            reg = <0x3c>;
-            label = "DISPLAY";
-            width = <128>;
-            height = <32>;
-            segment-offset = <0>;
-            page-offset = <0>;
-            display-offset = <0>;
-            multiplex-ratio = <31>;
-            segment-remap;
-            com-invdir;
-            com-sequential;
-            prechargep = <0x22>;
-        };
+
+
+
+
+
+
+
+
+
+&pro_micro_i2c {
+    status = "okay";
+
+    oled: ssd1306@3c {
+        compatible = "solomon,ssd1306fb";
+        reg = <0x3c>;
+        label = "DISPLAY";
+        width = <128>;
+        height = <32>;
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <31>;
+        segment-remap;
+        com-invdir;
+        com-sequential;
+        prechargep = <0x22>;
     };
 };
